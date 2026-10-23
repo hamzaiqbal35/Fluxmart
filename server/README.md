@@ -1,129 +1,97 @@
-# Multi-Vendor eCommerce Platform - Server
+# Fluxmart - Backend Server API
 
-This is the backend server for the Apexcify Multi-Vendor eCommerce Platform, built with Node.js, Express, and MongoDB.
+Backend REST API service for the Fluxmart eCommerce platform, built with Node.js, Express, and MongoDB.
 
-## 🚀 Features
+## Features
 
-- **Vendor Management**: Handle vendor registration, authentication, and profile management
-- **Product Management**: CRUD operations for products with categories and variants
-- **Order Processing**: Handle customer orders, payments, and order status updates
-- **User Authentication**: JWT-based authentication for vendors and admin
-- **File Uploads**: Handle product images and vendor documents
-- **Admin Dashboard**: Administrative controls and analytics
+- **Product & Inventory Management**: CRUD operations for products, categories, stock tracking, and action logs.
+- **Order Processing & Stripe Integration**: Customer order lifecycle management, Stripe Payment Intents, and webhooks.
+- **Authentication & RBAC**: JWT-based authentication supporting Customer and Administrator roles.
+- **File & Media Uploads**: Multer and Cloudinary integration for product images/videos and avatars.
+- **Security & Reliability**: Express rate limiting, input validation, CORS protection, and secure cookies.
+- **Admin Dashboard Controls**: Analytics reports, banner promotions, store settings, and FAQs.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- **Runtime**: Node.js
+- **Runtime**: Node.js (v18+)
 - **Framework**: Express.js
 - **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JWT (JSON Web Tokens)
-- **File Storage**: Local file system (can be extended to AWS S3)
-- **API Documentation**: Swagger/OpenAPI (if implemented)
+- **Authentication**: JWT (JSON Web Tokens) & BcryptJS
+- **Payments**: Stripe SDK
+- **File Storage**: Cloudinary & Local fallback
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 server/
-├── config/           # Configuration files
-├── controllers/      # Route controllers
-├── middleware/       # Custom middleware
-├── models/           # Database models
-├── routes/           # API routes
-├── uploads/          # File uploads directory
-│   ├── avatars/      # User/vendor profile pictures
-│   ├── products/     # Product images
-│   └── documents/    # Vendor documents
-├── .env              # Environment variables
-├── app.js            # Main application file
-└── server.js         # Server entry point
+├── src/
+│   ├── config/           # Database, Cloudinary, and setup configurations
+│   ├── controllers/      # Route controllers (auth, product, cart, order, etc.)
+│   ├── middleware/       # JWT Auth, rate limiting, and error handling
+│   ├── models/           # Mongoose models (User, Product, Order, Banner, etc.)
+│   ├── routes/           # API routes definitions
+│   ├── scripts/          # Database seeding scripts (seedAdmin.js)
+│   ├── app.js            # Express app configuration & middleware
+│   └── server.js         # Entry point and DB connection
+├── uploads/              # Local uploads fallback
+├── .env.example          # Version-controlled environment template
+└── package.json
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
-### Prerequisites
-
-- Node.js (v14+)
-- MongoDB (local or cloud instance)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   cd server
-   npm install
-   ```
-3. Create a `.env` file in the server root and configure the environment variables:
-   ```
-   PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret_key
-   JWT_EXPIRE=30d
-   ```
-
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-## 🌐 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register a new vendor
-- `POST /api/auth/login` - Login user/vendor
-- `GET /api/auth/me` - Get current user profile
-
-### Products
-- `GET /api/products` - Get all products
-- `GET /api/products/:id` - Get single product
-- `POST /api/products` - Create new product (vendor only)
-- `PUT /api/products/:id` - Update product (vendor only)
-- `DELETE /api/products/:id` - Delete product (vendor only)
-
-### Orders
-- `GET /api/orders` - Get all orders
-- `GET /api/orders/:id` - Get single order
-- `POST /api/orders` - Create new order
-- `PUT /api/orders/:id` - Update order status
-
-## 🔒 Environment Variables
-
-Create a `.env` file in the root directory and add the following:
-
-```
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRE=30d
-JWT_COOKIE_EXPIRE=30
-```
-
-## 🧪 Testing
-
-To run tests:
+### 1. Install Dependencies
 ```bash
-npm test
+cd server
+npm install
 ```
 
-## 🛡️ Security
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Ensure you provide:
+- `PORT` (e.g. 5000)
+- `MONGODB_URI` (local or MongoDB Atlas connection string)
+- `JWT_SECRET` (secure random string)
+- `CLIENT_URL` (e.g. `http://localhost:5173` or your production Vercel frontend URL)
+- `STRIPE_SECRET_KEY` & `STRIPE_WEBHOOK_SECRET`
+- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 
-- Input validation on all routes
-- Rate limiting for API endpoints
-- Helmet for setting secure HTTP headers
-- CORS enabled with appropriate configuration
-- Data sanitization against XSS
-- Secure HTTP headers
+### 3. Seed Admin Account
+To populate your MongoDB database with the initial Administrator account:
+```bash
+npm run seed:admin
+```
+Default credentials:
+- **Email:** `admin@example.com`
+- **Password:** `admin123`
 
-## 📝 License
+### 4. Start Development Server
+```bash
+npm run dev
+```
+For production:
+```bash
+npm start
+```
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## API Overview
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📧 Contact
-
-For any queries, please contact the development team.
+- `POST /api/auth/register` - Customer registration
+- `POST /api/auth/login` - User/Admin login
+- `GET /api/auth/me` - Current user profile
+- `GET /api/products` - Browse catalog (with filtering & pagination)
+- `POST /api/products` - Admin product creation
+- `PUT /api/products/:id` - Admin product update
+- `DELETE /api/products/:id` - Admin product removal
+- `GET /api/cart` - User shopping cart
+- `POST /api/cart` - Add/update items in cart
+- `POST /api/orders` - Place order & create Stripe payment intent
+- `GET /api/orders/my-orders` - Customer orders
+- `GET /api/orders/all` - Admin order oversight
+- `PUT /api/orders/:id/status` - Update order fulfillment
+- `GET /api/categories` - Fetch active product categories
+- `GET /api/banners` - Fetch homepage promotional banners
+- `GET /api/health` - Server health check

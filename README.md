@@ -1,7 +1,7 @@
 <div align="center">
 <img src="client/public/images/logo.png" alt="Fluxmart Logo" width="120" />
 <h1>Fluxmart</h1>
-<h2>Multi-Vendor eCommerce Platform</h2>
+<h2>Modern Full-Stack eCommerce Platform</h2>
 
 [![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)](https://react.dev/)
 [![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
@@ -13,233 +13,301 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 <p align="center">
-  <b>A comprehensive, scalable, and modern solution for multi-vendor commerce.</b><br />
-  Empowering vendors to sell and customers to shop in a seamless, unified ecosystem.
+  <b>A comprehensive, scalable, and modern eCommerce solution.</b><br />
+  Featuring a high-performance customer storefront and a feature-rich administrative management dashboard.
 </p>
 
-[View Demo](#) • [Documentation](#documentation) • [Report Bug](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform/issues) • [Request Feature](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform/issues)
+[Report Bug](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform/issues) • [Request Feature](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform/issues)
 
 </div>
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [API Reference](#-api-reference)
-- [Future Roadmap](#-future-roadmap)
-- [License](#-license)
-- [Contact](#-contact)
-
----
-
-## 🔭 Overview
-
-This project is a full-featured **Multi-Vendor eCommerce Platform** designed to bridge the gap between multiple sellers and a unified customer base. Built with performance and scalability in mind, it leverages the latest web technologies to deliver a fast, responsive, and secure shopping experience.
-
-Whether you are a customer looking for products, a vendor managing an inventory, or an administrator overseeing the platform, this solution provides tailored interfaces and robust functionality for all user roles.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables Setup](#environment-variables-setup)
+  - [Database and Admin Seeding](#database-and-admin-seeding)
+  - [Development Servers](#development-servers)
+- [API Reference](#api-reference)
+- [Deployment](#deployment)
+- [License](#license)
+- [Contact](#contact)
 
 ---
 
-## ✨ Key Features
+## Overview
 
-### 🛒 For Customers
-- **Seamless Shopping**: Browse products from multiple vendors in one place.
-- **Dynamic Media Support**: Robust product pages supporting both images and `.mp4/.webm` videos for richer product presentations.
-- **Smart Cart**: Persistent shopping cart with guest checkout options and dynamic shipping/tax calculations.
-- **Secure Reviews**: Verified purchase reviews and 5-star rating system.
-- **Order Tracking**: Real-time updates on order status (Pending, Processing, Shipped, Delivered) and tracking details.
-- **Stripe Payments**: Integrated with Stripe for secure credit/debit card transactions.
+Fluxmart is a production-grade full-stack eCommerce platform built with the MERN stack (MongoDB, Express, React, Node.js) and styled with Tailwind CSS. It provides an intuitive, high-converting shopping experience for customers and a complete management suite for store administrators.
 
-### 🏪 For Vendors
-- **Dashboard**: Specialized panel to manage products, inventory, and sales.
-- **Order Management**: View and process orders specific to their products.
-- **Split Orders**: Multi-vendor order support handles split payments and shipping automatically.
-
-### 🛡️ For Administrators
-- **Platform Oversight**: Comprehensive dashboard for monitoring users, products, and orders with detailed Recharts analytics.
-- **User Management**: Tools to suspend, ban, or verify users and vendors.
-- **Dynamic Categories**: Admin-controlled dynamic product categories that automatically populate the vendor dashboards.
-- **Store Settings**: Fully manageable shipping and tax configurations straight from the dashboard.
-
-### 🔐 Security & Core
-- **Authentication**: Secure JWT-based auth with role-based access control (RBAC).
-- **Data Integrity**: Robust input validation (express-validator) and secure database transactions.
-- **Responsive**: Mobile-first design ensures compatibility across all devices using TailwindCSS.
+The system is architected around two core roles:
+- **Customers**: Browse catalog, filter products, manage cart, complete secure Stripe checkouts, track orders, and leave verified reviews.
+- **Administrators**: Manage store inventory, organize categories, fulfill customer orders, configure promotional banners, adjust tax/shipping settings, and inspect store analytics.
 
 ---
 
-## 💻 Tech Stack
+## Key Features
+
+### Customer Experience
+- **Catalog Navigation**: Interactive catalog with real-time search, category filters, and sorting.
+- **Rich Media**: Product showcases with multi-image galleries and embedded `.mp4/.webm` product videos.
+- **Persistent Cart**: Client-synchronized cart state with dynamic shipping and tax calculations.
+- **Stripe Payments**: Integrated with Stripe Elements for PCI-compliant, secure card transactions.
+- **Order Lifecycle**: Order status updates (Pending, Processing, Shipped, Delivered) with full customer order history.
+- **Reviews & Ratings**: Verified customer reviews with 5-star scoring.
+- **Profile Management**: Shipping addresses, contact information, and account settings.
+
+### Store Administration
+- **Analytics Dashboard**: Visual performance metrics (revenue, orders, customer trends) powered by Recharts.
+- **Catalog & Inventory Control**: Create, update, deactivate, or delete products with stock change auditing.
+- **Dynamic Categories**: Admin-controlled taxonomy that updates storefront navigation instantly.
+- **Order Fulfillment**: Review, filter, inspect, and transition order fulfillment states.
+- **Promotional Banners**: Configure homepage hero banners and slider assets directly from the dashboard.
+- **Store Settings & FAQ Management**: Configure shipping thresholds, taxes, contact details, and customer FAQs.
+
+### Security and Architecture
+- **JWT Authentication**: Token-based authentication with HTTP-only cookies and bcrypt password hashing.
+- **Rate Limiting**: Brute-force and DoS prevention powered by `express-rate-limit`.
+- **Cloudinary Integration**: Cloud asset pipeline and CDN delivery for product and promotional media.
+- **SPA Routing**: Production rewrite configuration to ensure client-side routes resolve cleanly on reload.
+
+---
+
+## Tech Stack
 
 ### Frontend Client
-| Tech | Description |
+| Technology | Role |
 | --- | --- |
-| **React 19** | The latest library for building interactive UIs. |
-| **Vite** | Next-generation frontend tooling for lightning-fast builds. |
-| **Tailwind CSS** | Utility-first CSS framework for rapid UI development. |
-| **Recharts** | Composable charting library for dashboard analytics. |
-| **Stripe React** | Secure checkout elements for processing payments. |
-| **Lucide React** | Modern SVG icons. |
-| **Axios** | Promise-based HTTP client for API requests. |
-| **SweetAlert2 & Toastify** | Beautiful, responsive, customizable popups and toast notifications. |
+| **React 19** | Component-driven user interface architecture |
+| **Vite** | Modern frontend tooling and production bundling |
+| **Tailwind CSS** | Utility-first responsive styling framework |
+| **Recharts** | Composable charting library for admin analytics |
+| **Stripe React** | Secure payment input elements |
+| **Lucide React** | Lightweight SVG icon library |
+| **Axios** | Promise-based HTTP client with request interceptors |
+| **SweetAlert2 & Toastify** | Interactive dialogs and contextual notifications |
 
 ### Backend API
-| Tech | Description |
+| Technology | Role |
 | --- | --- |
-| **Node.js** | JavaScript runtime built on Chrome's V8 engine. |
-| **Express.js** | Minimalist web framework for Node.js. |
-| **MongoDB** | NoSQL database for flexible data schemas. |
-| **Mongoose** | ODM library for MongoDB and Node.js. |
-| **Stripe** | Backend payment intent creation and management. |
-| **Multer / Cloudinary** | Handling local file uploads and scalable cloud storage for images/videos. |
-| **Nodemailer** | Module for sending transactional emails. |
-| **BcryptJS & JWT** | Password hashing and secure authentication tokens. |
+| **Node.js** | Server-side JavaScript runtime |
+| **Express.js** | Modular REST API routing framework |
+| **MongoDB & Mongoose** | Document database with schema validation and indexing |
+| **Stripe Node SDK** | Payment intent creation and webhook verification |
+| **Multer & Cloudinary** | File upload pipeline and cloud media hosting |
+| **Nodemailer** | Transactional email delivery service |
+| **BcryptJS & JWT** | Password hashing and authentication tokens |
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```bash
 root/
-├── client/                 # 🎨 Frontend (React + Vite)
+├── client/                 # Frontend (React + Vite)
 │   ├── src/
-│   │   ├── components/     # Reusable UI blocks
-│   │   ├── context/        # Context Providers (Auth, Cart, etc.)
-│   │   ├── pages/          # Application Routes/Views
-│   │   └── utils/          # Helpers (API config, currency formatter, getMediaUrl)
-│   └── ...
+│   │   ├── components/     # Reusable UI components (Header, Footer, ProductCard, etc.)
+│   │   ├── context/        # Context Providers (AuthContext, CartContext)
+│   │   ├── pages/          # App Routes (Home, Products, Checkout, AdminDashboard)
+│   │   └── utils/          # API instances, formatters, and helpers
+│   ├── .env.example        # Version-controlled environment template
+│   └── vercel.json         # Vercel SPA rewrite configuration
 │
-├── server/                 # ⚙️ Backend (Node + Express)
+├── server/                 # Backend (Node + Express)
 │   ├── src/
-│   │   ├── config/         # Environment & DB Configs
-│   │   ├── controllers/    # Request Handlers
-│   │   ├── middleware/     # Auth (JWT) & Validation Middleware
-│   │   ├── models/         # Mongoose Schemas (User, Product, Order, etc.)
-│   │   └── routes/         # API Endpoint Definitions
-│   └── ...
+│   │   ├── config/         # Database and Cloudinary configuration
+│   │   ├── controllers/    # API request logic (auth, product, cart, order, etc.)
+│   │   ├── middleware/     # JWT Auth, error handlers, and rate limiters
+│   │   ├── models/         # Mongoose Schemas (User, Product, Order, Banner, etc.)
+│   │   ├── routes/         # Express route declarations
+│   │   └── scripts/        # Database seeders (seedAdmin.js)
+│   └── .env.example        # Version-controlled environment template
 │
-└── README.md               # 📄 You are here!
+└── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
-
-Follow these steps to set up the project locally.
+## Getting Started
 
 ### Prerequisites
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+- MongoDB instance (local server or MongoDB Atlas cluster)
+- Stripe Account (for development API keys)
 
-Ensure you have the following installed:
-- **Node.js** (v18+)
-- **npm** (v9+) or **yarn**
-- **MongoDB** (Local instance or Atlas URI)
-- **Stripe Account** (for payment processing)
+---
 
 ### Installation
 
-1.  **Clone the Repository**
-    ```bash
-    git clone https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform.git
-    cd "Fluxmart_Multi-Vendor eCommerce Platform"
-    ```
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform.git
+   cd "Fluxmart_Multi-Vendor eCommerce Platform"
+   ```
 
-2.  **Install Dependencies**
-    ```bash
-    # Install Backend Dependencies
-    cd server
-    npm install
+2. **Install Dependencies**
+   ```bash
+   # Install Backend Dependencies
+   cd server
+   npm install
 
-    # Install Frontend Dependencies
-    cd ../client
-    npm install
-    ```
-
-3.  **Environment Configuration**
-    Create a `.env` file in both `client/` and `server/` directories using the provided `.env.example` as a template.
-
-    **Server `.env` example:**
-    ```env
-    PORT=5000
-    MONGO_URI=your_mongodb_connection_string
-    JWT_SECRET=your_jwt_secret
-    STRIPE_SECRET_KEY=your_stripe_secret_key
-    ```
-
-    **Client `.env` example:**
-    ```env
-    VITE_API_URL=http://localhost:5000/api
-    VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
-    ```
-
-4.  **Launch Development Servers**
-    Open two terminal windows:
-
-    **Terminal 1 (Backend)**
-    ```bash
-    cd server
-    npm run dev
-    ```
-
-    **Terminal 2 (Frontend)**
-    ```bash
-    cd client
-    npm run dev
-    ```
-
-5.  **Access the App**
-    - Application: `http://localhost:5173`
-    - API Server: `http://localhost:5000`
+   # Install Frontend Dependencies
+   cd ../client
+   npm install
+   ```
 
 ---
 
-## 🔌 API Reference
+### Environment Variables Setup
+
+Both `client/` and `server/` include an `.env.example` template.
+
+#### 1. Backend Environment (`server/.env`)
+Copy `server/.env.example` to `server/.env`:
+```bash
+cd server
+cp .env.example .env
+```
+Populate the necessary variables:
+```env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/ecommerce
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRE=7d
+CLIENT_URL=http://localhost:5173
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Email (Optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=your_email@gmail.com
+```
+
+#### 2. Frontend Environment (`client/.env`)
+Copy `client/.env.example` to `client/.env`:
+```bash
+cd ../client
+cp .env.example .env
+```
+Configure your client keys:
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_SERVER_URL=http://localhost:5000
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+---
+
+### Database and Admin Seeding
+
+Seed the initial administrator account into your database:
+```bash
+cd server
+npm run seed:admin
+```
+Default credentials:
+- **Email:** `admin@example.com`
+- **Password:** `admin123`
+
+*(Update the administrative credentials from your profile after the initial login).*
+
+---
+
+### Development Servers
+
+Launch the backend and frontend in separate terminals:
+
+**Terminal 1 (Backend):**
+```bash
+cd server
+npm run dev
+# Server running on http://localhost:5000
+```
+
+**Terminal 2 (Frontend):**
+```bash
+cd client
+npm run dev
+# Frontend running on http://localhost:5173
+```
+
+---
+
+## API Reference
 
 ### Authentication
-- `POST /api/auth/register` - Create a new account
-- `POST /api/auth/login` - Sign in and receive JWT
-- `GET /api/auth/me` - Retrieve current user profile
+- `POST /api/auth/register` - Register a customer account
+- `POST /api/auth/login` - Authenticate user & issue JWT
+- `GET /api/auth/me` - Fetch authenticated user profile
 
 ### Products
-- `GET /api/products` - List all products with pagination/filtering
-- `GET /api/products/:id` - Get product details
-- `POST /api/products` - (Vendor/Admin) Create new product (supports multi-image & video upload)
-- `PUT /api/products/:id` - (Vendor/Admin) Update product details
+- `GET /api/products` - List products (supports pagination, filtering, search)
+- `GET /api/products/:id` - Fetch single product details
+- `POST /api/products` - (Admin) Create a new product (supports media uploads)
+- `PUT /api/products/:id` - (Admin) Update product details and stock
+- `DELETE /api/products/:id` - (Admin) Soft delete product
 
-### Categories
+### Categories & Banners
 - `GET /api/categories` - Fetch active categories
-- `POST /api/categories` - (Admin) Create a category
+- `POST /api/categories` - (Admin) Create category
+- `GET /api/banners` - Fetch active promotional banners
+- `POST /api/banners` - (Admin) Upload and manage banners
 
-### Orders
-- `POST /api/orders` - Place a new order with Stripe Intent
-- `GET /api/orders/my-orders` - History of customer orders
-- `GET /api/orders/all` - (Vendor/Admin) View all relevant orders
-- `PUT /api/orders/:id/status` - (Vendor/Admin) Update order fulfillment status
-
-*(See `server/README.md` for the full API documentation)*
-
----
-
-## 🛣️ Future Roadmap
-
-- [ ] 🔍 **Advanced Search** - ElasticSearch integration for better discovery.
-- [ ] ❤️ **Wishlist** - Save items for later.
-- [ ] 📊 **Vendor Analytics** - Detailed sales graphs and reports specific to individual vendors.
-- [ ] 🔔 **Real-time Notifications** - Socket.io integration for instant updates on order status.
-- [ ] 🌐 **Localization** - Multi-language support (i18n).
+### Cart & Orders
+- `GET /api/cart` - Retrieve current user cart
+- `POST /api/cart` - Add or update cart items
+- `POST /api/orders` - Place order with Stripe payment intent
+- `GET /api/orders/my-orders` - Customer order history
+- `GET /api/orders/all` - (Admin) View and filter all customer orders
+- `PUT /api/orders/:id/status` - (Admin) Update order fulfillment status
 
 ---
 
-## 📄 License
+## Deployment
+
+### Backend (Render)
+1. Create a new **Web Service** on [Render](https://render.com).
+2. Set **Root Directory** to `server`.
+3. Set **Build Command** to `npm install` and **Start Command** to `npm start`.
+4. Add all environment variables from `server/.env` (using your MongoDB Atlas connection string for `MONGODB_URI`).
+
+### Frontend (Vercel)
+1. Import repository on [Vercel](https://vercel.com).
+2. Set **Root Directory** to `client` and framework preset to `Vite`.
+3. Add environment variables:
+   - `VITE_API_URL`: `https://<your-render-service>.onrender.com/api`
+   - `VITE_SERVER_URL`: `https://<your-render-service>.onrender.com`
+   - `VITE_STRIPE_PUBLISHABLE_KEY`: `pk_test_...`
+4. The included `client/vercel.json` ensures SPA client-side routes resolve properly on reload.
+5. In Render, set `CLIENT_URL` to your Vercel production domain to allow CORS requests.
+
+---
+
+## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 📬 Contact
+## Contact
 
 <div align="center">
 
@@ -248,15 +316,11 @@ Distributed under the MIT License. See `LICENSE` for more information.
 [![Email](https://img.shields.io/badge/Gmail-hamzaiqbalrajpoot35%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:hamzaiqbalrajpoot35@gmail.com)
 [![GitHub](https://img.shields.io/badge/GitHub-hamzaiqbal35-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/hamzaiqbal35)
 
+**Project Repository:**  
+[Fluxmart eCommerce Platform](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform)
+
 <br />
 
-**Project Link**
-<br />
-[Fluxmart_Multi-Vendor-eCommerce-Platform](https://github.com/hamzaiqbal35/Fluxmart_Multi-Vendor-eCommerce-Platform)
+<sub>Fluxmart eCommerce Platform • Maintained by Hamza Iqbal</sub>
 
-</div>
-
-<div align="center">
-  <br />
-  <sub>Made with ❤️ by Hamza Iqbal</sub>
 </div>

@@ -31,13 +31,13 @@ const seedAdmin = async () => {
       isActive: true
     });
 
-    console.log(' Admin user created successfully!');
+    console.log('Admin user created successfully.');
     console.log('');
     console.log('Admin Login Credentials:');
     console.log('Email: admin@example.com');
     console.log('Password: admin123');
     console.log('');
-    console.log('️  IMPORTANT: Change the password after first login!');
+    console.log('IMPORTANT: Change the password after first login.');
     
     process.exit(0);
   } catch (error) {
