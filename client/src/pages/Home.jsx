@@ -4,6 +4,65 @@ import api, { getMediaUrl } from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const getTitleSizeClass = (size) => {
+  switch (size) {
+    case 'small':
+      return 'text-2xl sm:text-3xl md:text-5xl';
+    case 'medium':
+      return 'text-3xl sm:text-4xl md:text-6xl';
+    case 'xlarge':
+      return 'text-5xl sm:text-6xl md:text-8xl';
+    case 'large':
+    default:
+      return 'text-4xl sm:text-5xl md:text-7xl';
+  }
+};
+
+const getSubtitleSizeClass = (size) => {
+  switch (size) {
+    case 'small':
+      return 'text-sm sm:text-base md:text-lg';
+    case 'large':
+      return 'text-lg sm:text-xl md:text-2xl';
+    case 'medium':
+    default:
+      return 'text-base sm:text-lg md:text-xl';
+  }
+};
+
+const getFontClass = (font) => {
+  switch (font) {
+    case 'serif':
+      return 'font-serif';
+    case 'mono':
+      return 'font-mono';
+    case 'sans':
+    default:
+      return 'font-sans';
+  }
+};
+
+const getAlignmentClasses = (hPos, vPos) => {
+  let hClass = 'text-center items-center';
+  let innerAlign = 'mx-auto';
+  if (hPos === 'left') {
+    hClass = 'text-left items-start';
+    innerAlign = 'mr-auto ml-0';
+  } else if (hPos === 'right') {
+    hClass = 'text-right items-end';
+    innerAlign = 'ml-auto mr-0';
+  }
+
+  let vClass = 'items-center';
+  if (vPos === 'top') {
+    vClass = 'items-start pt-12 md:pt-16';
+  } else if (vPos === 'bottom') {
+    vClass = 'items-end pb-16 md:pb-24';
+  }
+
+  return { hClass, vClass, innerAlign };
+};
+
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +93,14 @@ const Home = () => {
       subtitle: 'Discover meticulously crafted products from our premium catalog.',
       buttonText: 'Shop the Collection',
       buttonLink: '/products',
+      buttonColor: '#000000',
+      buttonTextColor: '#ffffff',
+      titleColor: '#000000',
+      subtitleColor: '#4b5563',
+      titleSize: 'large',
+      subtitleSize: 'medium',
+      textPosition: 'center',
+      verticalPosition: 'center',
       bgClass: 'bg-gray-100'
     },
     {
@@ -41,6 +108,14 @@ const Home = () => {
       subtitle: 'Experience lightning fast shopping with unparalleled design.',
       buttonText: 'Learn About Us',
       buttonLink: '/about',
+      buttonColor: '#000000',
+      buttonTextColor: '#ffffff',
+      titleColor: '#000000',
+      subtitleColor: '#4b5563',
+      titleSize: 'large',
+      subtitleSize: 'medium',
+      textPosition: 'center',
+      verticalPosition: 'center',
       bgClass: 'bg-gray-200'
     }
   ];
@@ -84,10 +159,8 @@ const Home = () => {
     // Trigger only if horizontal swipe dominates over vertical scroll
     if (Math.abs(xDistance) > Math.abs(yDistance) && Math.abs(xDistance) > minSwipeDistance) {
       if (xDistance > 0) {
-        // Swiped left -> next slide
         nextSlide();
       } else {
-        // Swiped right -> previous slide
         prevSlide();
       }
     }
@@ -143,56 +216,64 @@ const Home = () => {
         onTouchEnd={handleTouchEnd}
         className="relative h-[60vh] min-h-[400px] md:h-[70vh] md:min-h-[500px] flex items-center justify-center overflow-hidden border-b border-border bg-gray-50 touch-pan-y select-none"
       >
-        {activeSlides.map((slide, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 flex items-center justify-center ${
-              index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-          >
-            <div className="container mx-auto px-12 md:px-20 lg:px-6 text-center max-w-4xl relative z-20">
-              {slide.title && (
-                <h1 
-                  className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter mb-4 md:mb-6 leading-tight"
-                  style={{ color: slide.textColor || '#000000' }}
-                >
-                  {slide.title}
-                </h1>
-              )}
-              {slide.subtitle && (
-                <p 
-                  className="text-base md:text-lg lg:text-xl mb-8 md:mb-10 max-w-2xl mx-auto font-light"
-                  style={{ color: slide.textColor || '#4b5563' }}
-                >
-                  {slide.subtitle}
-                </p>
-              )}
-              {(slide.buttonLink || (slide.link && slide.link !== 'undefined' && slide.link !== 'null' && slide.link.trim() !== '')) && (
-                <Link
-                  to={slide.buttonLink || slide.link}
-                  className="inline-flex items-center justify-center bg-brand-gradient text-white px-8 py-4 rounded-full font-medium hover:opacity-90 transition-opacity group shadow-lg"
-                >
-                  {slide.buttonText || 'Shop Now'}
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
-            </div>
-            {/* Display Banner Image if exists, else abstract bg */}
-            {slide.imageUrl ? (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center bg-gray-100">
-                <img src={getMediaUrl(slide.imageUrl)} alt={slide.title || 'Banner'} className="w-full h-full object-cover object-[80%_center] md:object-center" />
-                {(slide.title || slide.subtitle) && (
-                  <div className="absolute inset-0 bg-black/30 md:bg-black/10"></div>
+        {activeSlides.map((slide, index) => {
+          const { hClass, vClass, innerAlign } = getAlignmentClasses(slide.textPosition, slide.verticalPosition);
+          const titleColor = slide.titleColor || slide.textColor || '#000000';
+          const subtitleColor = slide.subtitleColor || slide.textColor || '#4b5563';
+          const btnBg = slide.buttonColor || '#000000';
+          const btnText = slide.buttonTextColor || '#ffffff';
+
+          return (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 flex ${vClass} justify-center ${
+                index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            >
+              <div className={`container mx-auto px-8 md:px-16 lg:px-20 max-w-5xl relative z-20 flex flex-col ${hClass}`}>
+                {slide.title && (
+                  <h1 
+                    className={`${getTitleSizeClass(slide.titleSize)} ${getFontClass(slide.titleFont)} font-bold tracking-tight mb-3 md:mb-5 leading-tight`}
+                    style={{ color: titleColor }}
+                  >
+                    {slide.title}
+                  </h1>
+                )}
+                {slide.subtitle && (
+                  <p 
+                    className={`${getSubtitleSizeClass(slide.subtitleSize)} ${getFontClass(slide.subtitleFont)} mb-6 md:mb-8 max-w-2xl font-normal ${innerAlign}`}
+                    style={{ color: subtitleColor }}
+                  >
+                    {slide.subtitle}
+                  </p>
+                )}
+                {(slide.buttonLink || (slide.link && slide.link !== 'undefined' && slide.link !== 'null' && slide.link.trim() !== '')) && (
+                  <Link
+                    to={slide.buttonLink || slide.link}
+                    style={{ backgroundColor: btnBg, color: btnText }}
+                    className="inline-flex items-center justify-center px-8 py-3.5 md:py-4 rounded-full font-medium hover:opacity-90 transition-all group shadow-md active:scale-95 text-sm md:text-base"
+                  >
+                    {slide.buttonText || 'Shop Now'}
+                    <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                 )}
               </div>
-            ) : (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
-                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-gradient rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob"></div>
-                 <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-brand-orange rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
-              </div>
-            )}
-          </div>
-        ))}
+              {/* Display Banner Image if exists, else clean neutral background */}
+              {slide.imageUrl ? (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center bg-gray-100">
+                  <img src={getMediaUrl(slide.imageUrl)} alt={slide.title || 'Banner'} className="w-full h-full object-cover object-[80%_center] md:object-center" />
+                  {(slide.title || slide.subtitle) && (
+                    <div className="absolute inset-0 bg-black/25 md:bg-black/10"></div>
+                  )}
+                </div>
+              ) : (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none bg-gray-100">
+                   <div className="absolute inset-0 bg-white/40"></div>
+                </div>
+              )}
+            </div>
+          );
+        })}
         
         {/* Slide Indicators */}
         {activeSlides.length > 1 && (

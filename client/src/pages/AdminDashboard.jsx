@@ -868,10 +868,31 @@ const ReportsTab = () => {
 const BannersTab = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ title: '', subtitle: '', link: '', order: 0, isActive: true, textColor: '#000000' });
   const [editingBannerId, setEditingBannerId] = useState(null);
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const initialFormState = {
+    title: '',
+    subtitle: '',
+    link: '',
+    order: 0,
+    isActive: true,
+    titleColor: '#000000',
+    subtitleColor: '#4b5563',
+    titleSize: 'large',
+    subtitleSize: 'medium',
+    titleFont: 'sans',
+    subtitleFont: 'sans',
+    textPosition: 'center',
+    verticalPosition: 'center',
+    buttonText: 'Shop Now',
+    buttonColor: '#000000',
+    buttonTextColor: '#ffffff'
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
 
   const fetchBanners = async () => {
     try {
@@ -890,10 +911,18 @@ const BannersTab = () => {
     fetchBanners();
   }, []);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!image && !editingBannerId) {
-      toast.warning('Please select an image');
+      toast.warning('Please select a banner image');
       return;
     }
 
@@ -905,7 +934,19 @@ const BannersTab = () => {
       data.append('link', formData.link);
       data.append('order', formData.order);
       data.append('isActive', formData.isActive);
-      data.append('textColor', formData.textColor);
+      data.append('titleColor', formData.titleColor);
+      data.append('subtitleColor', formData.subtitleColor);
+      data.append('titleSize', formData.titleSize);
+      data.append('subtitleSize', formData.subtitleSize);
+      data.append('titleFont', formData.titleFont);
+      data.append('subtitleFont', formData.subtitleFont);
+      data.append('textPosition', formData.textPosition);
+      data.append('verticalPosition', formData.verticalPosition);
+      data.append('buttonText', formData.buttonText);
+      data.append('buttonColor', formData.buttonColor);
+      data.append('buttonTextColor', formData.buttonTextColor);
+      data.append('textColor', formData.titleColor);
+
       if (image) {
         data.append('image', image);
       }
@@ -939,21 +980,40 @@ const BannersTab = () => {
       subtitle: banner.subtitle || '',
       link: banner.link || '',
       order: banner.order || 0,
-      isActive: banner.isActive,
-      textColor: banner.textColor || '#000000'
+      isActive: banner.isActive !== undefined ? banner.isActive : true,
+      titleColor: banner.titleColor || banner.textColor || '#000000',
+      subtitleColor: banner.subtitleColor || banner.textColor || '#4b5563',
+      titleSize: banner.titleSize || 'large',
+      subtitleSize: banner.subtitleSize || 'medium',
+      titleFont: banner.titleFont || 'sans',
+      subtitleFont: banner.subtitleFont || 'sans',
+      textPosition: banner.textPosition || 'center',
+      verticalPosition: banner.verticalPosition || 'center',
+      buttonText: banner.buttonText || 'Shop Now',
+      buttonColor: banner.buttonColor || '#000000',
+      buttonTextColor: banner.buttonTextColor || '#ffffff'
     });
     setImage(null);
+    setImagePreview(banner.imageUrl ? getMediaUrl(banner.imageUrl) : null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCancelEdit = () => {
     setEditingBannerId(null);
-    setFormData({ title: '', subtitle: '', link: '', order: 0, isActive: true, textColor: '#000000' });
+    setFormData(initialFormState);
     setImage(null);
+    setImagePreview(null);
   };
 
   const handleDelete = async (id) => {
-    if (!(await Swal.fire({ text: 'Are you sure you want to delete this banner?', showCancelButton: true, confirmButtonColor: '#000', customClass: { confirmButton: 'btn-primary', cancelButton: 'btn-secondary' }, buttonsStyling: false })).isConfirmed) return;
+    if (!(await Swal.fire({ 
+      text: 'Are you sure you want to delete this banner?', 
+      showCancelButton: true, 
+      confirmButtonColor: '#000', 
+      customClass: { confirmButton: 'btn-primary', cancelButton: 'btn-secondary' }, 
+      buttonsStyling: false 
+    })).isConfirmed) return;
+    
     try {
       await api.delete(`/banners/${id}`);
       toast.success('Banner deleted');
@@ -963,54 +1023,369 @@ const BannersTab = () => {
     }
   };
 
+  const getPreviewTitleClass = (size) => {
+    switch (size) {
+      case 'small': return 'text-xl sm:text-2xl font-bold';
+      case 'medium': return 'text-2xl sm:text-3xl font-bold';
+      case 'xlarge': return 'text-4xl sm:text-5xl font-bold';
+      case 'large': default: return 'text-3xl sm:text-4xl font-bold';
+    }
+  };
+
+  const getPreviewSubtitleClass = (size) => {
+    switch (size) {
+      case 'small': return 'text-xs sm:text-sm';
+      case 'large': return 'text-base sm:text-lg';
+      case 'medium': default: return 'text-sm sm:text-base';
+    }
+  };
+
+  const getPreviewFont = (font) => {
+    switch (font) {
+      case 'serif': return 'font-serif';
+      case 'mono': return 'font-mono';
+      case 'sans': default: return 'font-sans';
+    }
+  };
+
+  const hAlignClass = formData.textPosition === 'left' ? 'text-left items-start' : formData.textPosition === 'right' ? 'text-right items-end' : 'text-center items-center';
+  const vAlignClass = formData.verticalPosition === 'top' ? 'justify-start pt-6' : formData.verticalPosition === 'bottom' ? 'justify-end pb-8' : 'justify-center';
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Hero Banners Management</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Hero Banners Management</h2>
+          <p className="text-gray-500 text-sm mt-1">Design responsive hero banners with separate typography, colors, solid buttons, and layout controls.</p>
+        </div>
       </div>
 
-      <div className="bg-gray-50 rounded-lg shadow-sm border border-border p-6">
-        <h3 className="text-lg font-semibold mb-4">{editingBannerId ? 'Edit Banner' : 'Add New Banner'}</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">Title</label>
-              <input type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="input-field bg-white" placeholder="Summer Sale" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">Subtitle</label>
-              <input type="text" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} className="input-field bg-white" placeholder="Up to 50% off" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">Link URL</label>
-              <input type="text" value={formData.link} onChange={e => setFormData({...formData, link: e.target.value})} className="input-field bg-white" placeholder="/products?category=summer" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">Display Order</label>
-              <input type="number" value={formData.order} onChange={e => setFormData({...formData, order: e.target.value})} className="input-field bg-white" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-black mb-1">Text Color</label>
-              <div className="flex items-center space-x-2">
-                <input type="color" value={formData.textColor} onChange={e => setFormData({...formData, textColor: e.target.value})} className="h-10 w-16 p-1 bg-white border border-border rounded cursor-pointer" />
-                <span className="text-sm text-gray-500">{formData.textColor}</span>
+      <div className="bg-white rounded-xl shadow-sm border border-border p-6 md:p-8">
+        <h3 className="text-xl font-bold mb-6 pb-3 border-b border-border">{editingBannerId ? 'Edit Hero Banner' : 'Create New Hero Banner'}</h3>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Section 1: Title Configuration */}
+          <div className="bg-gray-50/70 p-5 rounded-lg border border-border/60 space-y-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-700">1. Title Typography & Color</h4>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Title Text</label>
+                <input 
+                  type="text" 
+                  value={formData.title} 
+                  onChange={e => setFormData({...formData, title: e.target.value})} 
+                  className="input-field bg-white" 
+                  placeholder="e.g. Everyday Essentials. Exceptional Style." 
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Title Color</label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="color" 
+                    value={formData.titleColor} 
+                    onChange={e => setFormData({...formData, titleColor: e.target.value})} 
+                    className="h-10 w-12 p-0.5 bg-white border border-border rounded cursor-pointer" 
+                  />
+                  <input 
+                    type="text" 
+                    value={formData.titleColor} 
+                    onChange={e => setFormData({...formData, titleColor: e.target.value})} 
+                    className="w-20 px-2 py-2 text-xs border border-border rounded uppercase bg-white font-mono" 
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Title Size</label>
+                <select 
+                  value={formData.titleSize} 
+                  onChange={e => setFormData({...formData, titleSize: e.target.value})} 
+                  className="input-field bg-white text-sm"
+                >
+                  <option value="small">Small</option>
+                  <option value="medium">Medium</option>
+                  <option value="large">Large (Standard)</option>
+                  <option value="xlarge">Extra Large (Bold)</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Title Font</label>
+                <select 
+                  value={formData.titleFont} 
+                  onChange={e => setFormData({...formData, titleFont: e.target.value})} 
+                  className="input-field bg-white text-sm"
+                >
+                  <option value="sans">Modern Sans</option>
+                  <option value="serif">Classic Serif</option>
+                  <option value="mono">Clean Mono</option>
+                </select>
               </div>
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-black mb-1">Banner Image {editingBannerId && '(Leave blank to keep current)'}</label>
-              <input type="file" accept="image/*" onChange={e => setImage(e.target.files[0])} className="input-field bg-white p-2" required={!editingBannerId} />
-            </div>
-            <div className="md:col-span-2 flex items-center">
-              <input type="checkbox" id="isActive" checked={formData.isActive} onChange={e => setFormData({...formData, isActive: e.target.checked})} className="mr-2" />
-              <label htmlFor="isActive" className="text-sm">Active</label>
+          </div>
+
+          {/* Section 2: Subtitle Configuration */}
+          <div className="bg-gray-50/70 p-5 rounded-lg border border-border/60 space-y-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-700">2. Subtitle Typography & Color</h4>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-6">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle Text</label>
+                <input 
+                  type="text" 
+                  value={formData.subtitle} 
+                  onChange={e => setFormData({...formData, subtitle: e.target.value})} 
+                  className="input-field bg-white" 
+                  placeholder="e.g. Discover fashion, accessories, and tech that fit your everyday life." 
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle Color</label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="color" 
+                    value={formData.subtitleColor} 
+                    onChange={e => setFormData({...formData, subtitleColor: e.target.value})} 
+                    className="h-10 w-12 p-0.5 bg-white border border-border rounded cursor-pointer" 
+                  />
+                  <input 
+                    type="text" 
+                    value={formData.subtitleColor} 
+                    onChange={e => setFormData({...formData, subtitleColor: e.target.value})} 
+                    className="w-20 px-2 py-2 text-xs border border-border rounded uppercase bg-white font-mono" 
+                  />
+                </div>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle Size</label>
+                <select 
+                  value={formData.subtitleSize} 
+                  onChange={e => setFormData({...formData, subtitleSize: e.target.value})} 
+                  className="input-field bg-white text-sm"
+                >
+                  <option value="small">Small</option>
+                  <option value="medium">Medium (Standard)</option>
+                  <option value="large">Large</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Subtitle Font</label>
+                <select 
+                  value={formData.subtitleFont} 
+                  onChange={e => setFormData({...formData, subtitleFont: e.target.value})} 
+                  className="input-field bg-white text-sm"
+                >
+                  <option value="sans">Modern Sans</option>
+                  <option value="serif">Classic Serif</option>
+                  <option value="mono">Clean Mono</option>
+                </select>
+              </div>
             </div>
           </div>
-          <div className="flex space-x-3 mt-4">
-            <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center">
-              {isSubmitting ? 'Saving...' : <><Upload className="w-4 h-4 mr-2" /> {editingBannerId ? 'Update Banner' : 'Upload Banner'}</>}
+
+          {/* Section 3: Alignment, Layout & Positioning across all screen sizes */}
+          <div className="bg-gray-50/70 p-5 rounded-lg border border-border/60 space-y-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-700">3. Positioning & Layout (Responsive for All Screens)</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Horizontal Alignment</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'left', label: 'Left Aligned' },
+                    { value: 'center', label: 'Center Aligned' },
+                    { value: 'right', label: 'Right Aligned' }
+                  ].map(option => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      onClick={() => setFormData({...formData, textPosition: option.value})}
+                      className={`py-2.5 px-3 text-xs font-medium rounded-lg border transition-all ${
+                        formData.textPosition === option.value 
+                          ? 'bg-black text-white border-black shadow-sm' 
+                          : 'bg-white text-gray-700 border-border hover:bg-gray-100'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Vertical Alignment</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { value: 'top', label: 'Top' },
+                    { value: 'center', label: 'Middle' },
+                    { value: 'bottom', label: 'Bottom' }
+                  ].map(option => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      onClick={() => setFormData({...formData, verticalPosition: option.value})}
+                      className={`py-2.5 px-3 text-xs font-medium rounded-lg border transition-all ${
+                        formData.verticalPosition === option.value 
+                          ? 'bg-black text-white border-black shadow-sm' 
+                          : 'bg-white text-gray-700 border-border hover:bg-gray-100'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Call to Action Button (Solid Color - No Gradient) */}
+          <div className="bg-gray-50/70 p-5 rounded-lg border border-border/60 space-y-4">
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-700">4. Call to Action Button (Solid Color - No Gradient)</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Button Text</label>
+                <input 
+                  type="text" 
+                  value={formData.buttonText} 
+                  onChange={e => setFormData({...formData, buttonText: e.target.value})} 
+                  className="input-field bg-white" 
+                  placeholder="Shop Now" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Button Destination URL</label>
+                <input 
+                  type="text" 
+                  value={formData.link} 
+                  onChange={e => setFormData({...formData, link: e.target.value})} 
+                  className="input-field bg-white" 
+                  placeholder="/products" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Button Color (Solid)</label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="color" 
+                    value={formData.buttonColor} 
+                    onChange={e => setFormData({...formData, buttonColor: e.target.value})} 
+                    className="h-10 w-12 p-0.5 bg-white border border-border rounded cursor-pointer" 
+                  />
+                  <input 
+                    type="text" 
+                    value={formData.buttonColor} 
+                    onChange={e => setFormData({...formData, buttonColor: e.target.value})} 
+                    className="w-24 px-2 py-2 text-xs border border-border rounded uppercase bg-white font-mono" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Button Text Color</label>
+                <div className="flex items-center space-x-2">
+                  <input 
+                    type="color" 
+                    value={formData.buttonTextColor} 
+                    onChange={e => setFormData({...formData, buttonTextColor: e.target.value})} 
+                    className="h-10 w-12 p-0.5 bg-white border border-border rounded cursor-pointer" 
+                  />
+                  <input 
+                    type="text" 
+                    value={formData.buttonTextColor} 
+                    onChange={e => setFormData({...formData, buttonTextColor: e.target.value})} 
+                    className="w-24 px-2 py-2 text-xs border border-border rounded uppercase bg-white font-mono" 
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Media & Publication */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Banner Image {editingBannerId && '(Leave empty to keep current)'}</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageChange} 
+                className="input-field bg-white p-2 text-xs" 
+                required={!editingBannerId && !imagePreview} 
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Display Order</label>
+              <input 
+                type="number" 
+                value={formData.order} 
+                onChange={e => setFormData({...formData, order: e.target.value})} 
+                className="input-field bg-white" 
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 h-10">
+              <input 
+                type="checkbox" 
+                id="bannerActive" 
+                checked={formData.isActive} 
+                onChange={e => setFormData({...formData, isActive: e.target.checked})} 
+                className="w-4 h-4 rounded text-black focus:ring-black cursor-pointer" 
+              />
+              <label htmlFor="bannerActive" className="text-sm font-medium text-gray-800 cursor-pointer">Active on Homepage</label>
+            </div>
+          </div>
+
+          {/* Live Preview Box */}
+          <div className="mt-6 border border-border rounded-xl overflow-hidden bg-gray-50">
+            <div className="bg-gray-100/80 px-4 py-2 border-b border-border text-xs font-semibold text-gray-600 flex justify-between items-center">
+              <span>Live Visual Preview</span>
+              <span className="text-gray-400 font-normal">Real-time simulation of colors, sizes & alignment</span>
+            </div>
+            <div className="relative h-64 md:h-72 w-full overflow-hidden flex items-center justify-center bg-gray-200">
+              {imagePreview && (
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="absolute inset-0 w-full h-full object-cover" 
+                />
+              )}
+              <div className="absolute inset-0 bg-black/20"></div>
+
+              <div className={`relative z-10 w-full h-full p-6 md:p-8 flex flex-col ${vAlignClass} ${hAlignClass}`}>
+                <h3 
+                  className={`${getPreviewTitleClass(formData.titleSize)} ${getPreviewFont(formData.titleFont)} tracking-tight mb-2`}
+                  style={{ color: formData.titleColor }}
+                >
+                  {formData.title || 'Banner Title Preview'}
+                </h3>
+                <p 
+                  className={`${getPreviewSubtitleClass(formData.subtitleSize)} ${getPreviewFont(formData.subtitleFont)} max-w-xl mb-4`}
+                  style={{ color: formData.subtitleColor }}
+                >
+                  {formData.subtitle || 'Subtitle text with customized font, color, and size.'}
+                </p>
+                <div 
+                  style={{ backgroundColor: formData.buttonColor, color: formData.buttonTextColor }}
+                  className="inline-flex items-center px-6 py-2.5 rounded-full text-xs font-semibold shadow-sm select-none"
+                >
+                  {formData.buttonText || 'Shop Now'} &rarr;
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex space-x-3 pt-2">
+            <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center px-6 py-2.5 text-sm">
+              {isSubmitting ? 'Saving...' : <><Upload className="w-4 h-4 mr-2" /> {editingBannerId ? 'Update Banner' : 'Publish Banner'}</>}
             </button>
             {editingBannerId && (
-              <button type="button" onClick={handleCancelEdit} className="btn-secondary">
+              <button type="button" onClick={handleCancelEdit} className="btn-secondary px-6 py-2.5 text-sm">
                 Cancel
               </button>
             )}
@@ -1018,27 +1393,55 @@ const BannersTab = () => {
         </form>
       </div>
 
+      {/* Existing Banners Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <p>Loading banners...</p>
+          <p className="text-gray-500">Loading banners...</p>
         ) : banners.length === 0 ? (
-          <p className="text-gray-500 col-span-full">No banners found. Upload one above to display on the home page.</p>
+          <p className="text-gray-500 col-span-full">No banners found. Create one above to display on the storefront.</p>
         ) : (
           banners.map(banner => (
-            <div key={banner._id} className="border border-border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow relative group">
-              <div className="h-40 bg-gray-100 w-full overflow-hidden relative">
-                <img src={getMediaUrl(banner.imageUrl)} alt={banner.title} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://via.placeholder.com/600x400'; }} />
-                {!banner.isActive && <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">Inactive</div>}
+            <div key={banner._id} className="border border-border rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow relative group">
+              <div className="h-44 bg-gray-100 w-full overflow-hidden relative">
+                <img 
+                  src={getMediaUrl(banner.imageUrl)} 
+                  alt={banner.title} 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => { e.target.onerror = null; e.target.src='https://via.placeholder.com/600x400'; }} 
+                />
+                {!banner.isActive && (
+                  <div className="absolute top-2 right-2 bg-black text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                    Inactive
+                  </div>
+                )}
+                <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
+                  <span className="bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm uppercase">
+                    {banner.textPosition || 'center'}
+                  </span>
+                  <span className="bg-black/60 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm uppercase">
+                    {banner.titleSize || 'large'}
+                  </span>
+                </div>
               </div>
+
               <div className="p-4">
-                <h4 className="font-bold text-lg mb-1 truncate">{banner.title}</h4>
-                <p className="text-sm text-gray-500 mb-3 truncate">{banner.subtitle}</p>
-                <div className="flex space-x-3 mt-2">
-                  <button onClick={() => handleEditClick(banner)} className="text-brand-orange hover:opacity-80 text-sm flex items-center">
-                    <Edit className="w-4 h-4 mr-1" /> Edit
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <span className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: banner.titleColor || banner.textColor || '#000000' }} title="Title Color"></span>
+                  <span className="w-3 h-3 rounded-full border border-gray-300" style={{ backgroundColor: banner.subtitleColor || banner.textColor || '#4b5563' }} title="Subtitle Color"></span>
+                  <h4 className="font-bold text-base truncate flex-1" style={{ color: banner.titleColor || banner.textColor || '#000000' }}>
+                    {banner.title}
+                  </h4>
+                </div>
+                <p className="text-xs text-gray-500 mb-4 line-clamp-2" style={{ color: banner.subtitleColor || banner.textColor || '#4b5563' }}>
+                  {banner.subtitle}
+                </p>
+
+                <div className="flex space-x-3 pt-3 border-t border-border">
+                  <button onClick={() => handleEditClick(banner)} className="text-black hover:text-gray-600 text-xs font-semibold flex items-center">
+                    <Edit className="w-3.5 h-3.5 mr-1" /> Edit Design
                   </button>
-                  <button onClick={() => handleDelete(banner._id)} className="text-red-600 hover:text-red-800 text-sm flex items-center">
-                    <Trash2 className="w-4 h-4 mr-1" /> Delete
+                  <button onClick={() => handleDelete(banner._id)} className="text-red-600 hover:text-red-800 text-xs font-semibold flex items-center">
+                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
                   </button>
                 </div>
               </div>
@@ -1049,7 +1452,6 @@ const BannersTab = () => {
     </div>
   );
 };
-
 
 export default AdminDashboard;
 
