@@ -1,4 +1,4 @@
-/* eslint-disable react-refresh/only-export-components */
+﻿/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
 
@@ -17,14 +17,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Always verify session with the server since the token is in an HttpOnly cookie
+    // Session is verified directly with the server via HttpOnly cookie; no credentials in localStorage
     api.get('/auth/me')
       .then(res => {
         setUser(res.data.user);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
       })
       .catch(() => {
-        localStorage.removeItem('user');
         setUser(null);
       })
       .finally(() => setLoading(false));
@@ -32,14 +30,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
-    localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data;
   };
 
   const register = async (userData) => {
     const res = await api.post('/auth/register', userData);
-    localStorage.setItem('user', JSON.stringify(res.data.user));
     setUser(res.data.user);
     return res.data;
   };
@@ -50,14 +46,12 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     }
-    localStorage.removeItem('user');
     setUser(null);
   };
 
   const updateUser = (updatedUser) => {
     if (!updatedUser) return;
     setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   const value = {

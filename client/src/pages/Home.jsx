@@ -12,7 +12,7 @@ const Home = () => {
   // Initialize banners from local cache to prevent split-second placeholder flash on refresh
   const [banners, setBanners] = useState(() => {
     try {
-      const cached = localStorage.getItem('fluxmart_cached_banners');
+      const cached = sessionStorage.getItem('fluxmart_cached_banners');
       return cached ? JSON.parse(cached) : [];
     } catch {
       return [];
@@ -21,7 +21,7 @@ const Home = () => {
 
   const [bannersLoading, setBannersLoading] = useState(() => {
     try {
-      const cached = localStorage.getItem('fluxmart_cached_banners');
+      const cached = sessionStorage.getItem('fluxmart_cached_banners');
       return !cached || JSON.parse(cached).length === 0;
     } catch {
       return true;
@@ -67,9 +67,9 @@ const Home = () => {
       const fetched = res.data.banners || [];
       setBanners(fetched);
       if (fetched.length > 0) {
-        localStorage.setItem('fluxmart_cached_banners', JSON.stringify(fetched));
+        sessionStorage.setItem('fluxmart_cached_banners', JSON.stringify(fetched));
       } else {
-        localStorage.removeItem('fluxmart_cached_banners');
+        sessionStorage.removeItem('fluxmart_cached_banners');
       }
     } catch (error) {
       console.error('Error fetching banners:', error);

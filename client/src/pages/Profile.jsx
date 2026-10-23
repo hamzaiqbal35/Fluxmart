@@ -58,9 +58,7 @@ const Profile = () => {
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setTimeout(() => setShowPasswordForm(false), 2000);
       
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-      }
+
     } catch (error) {
       setStatusMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update password' });
     } finally {
