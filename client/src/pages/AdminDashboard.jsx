@@ -865,6 +865,50 @@ const ReportsTab = () => {
   );
 };
 // Banners Tab Component
+
+const BANNER_FONT_OPTIONS = [
+  {
+    group: 'Modern & Clean Sans',
+    options: [
+      { value: 'sans', label: 'Modern Sans (Inter)', family: "'Inter', sans-serif" },
+      { value: 'plus-jakarta', label: 'Plus Jakarta Sans (Crisp Modern)', family: "'Plus Jakarta Sans', sans-serif" },
+      { value: 'outfit', label: 'Outfit (Geometric Clean)', family: "'Outfit', sans-serif" },
+    ]
+  },
+  {
+    group: 'Luxury & Editorial Serif',
+    options: [
+      { value: 'playfair', label: 'Playfair Display (Vogue Luxury / Editorial)', family: "'Playfair Display', serif" },
+      { value: 'cinzel', label: 'Cinzel (Royal & High Jewelry)', family: "'Cinzel', serif" },
+      { value: 'cormorant', label: 'Cormorant Garamond (Haute Couture Italic)', family: "'Cormorant Garamond', serif" },
+      { value: 'serif', label: 'Classic Serif', family: 'serif' },
+    ]
+  },
+  {
+    group: 'Bold Display & Streetwear',
+    options: [
+      { value: 'bebas', label: 'Bebas Neue (Bold Streetwear / Big Sale)', family: "'Bebas Neue', sans-serif" },
+      { value: 'syne', label: 'Syne (Avant-Garde Designer)', family: "'Syne', sans-serif" },
+      { value: 'oswald', label: 'Oswald (Condensed Urban Impact)', family: "'Oswald', sans-serif" },
+      { value: 'righteous', label: 'Righteous (Retro Wave / Cyber)', family: "'Righteous', cursive" },
+    ]
+  },
+  {
+    group: 'Artisan & Handwritten Script',
+    options: [
+      { value: 'caveat', label: 'Caveat (Handwritten Signature)', family: "'Caveat', cursive" },
+      { value: 'dancing', label: 'Dancing Script (Calligraphy & Romance)', family: "'Dancing Script', cursive" },
+    ]
+  },
+  {
+    group: 'Tech & Brutalist',
+    options: [
+      { value: 'space-grotesk', label: 'Space Grotesk (Tech Editorial)', family: "'Space Grotesk', sans-serif" },
+      { value: 'mono', label: 'Clean Monospace', family: 'monospace' },
+    ]
+  }
+];
+
 const BannersTab = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1042,6 +1086,18 @@ const BannersTab = () => {
 
   const getPreviewFont = (font) => {
     switch (font) {
+      case 'plus-jakarta': return 'font-plus-jakarta';
+      case 'outfit': return 'font-outfit';
+      case 'playfair': return 'font-playfair';
+      case 'cinzel': return 'font-cinzel';
+      case 'cormorant': return 'font-cormorant italic';
+      case 'bebas': return 'font-bebas uppercase';
+      case 'syne': return 'font-syne';
+      case 'righteous': return 'font-righteous';
+      case 'oswald': return 'font-oswald uppercase';
+      case 'caveat': return 'font-caveat';
+      case 'dancing': return 'font-dancing';
+      case 'space-grotesk': return 'font-space-grotesk';
       case 'serif': return 'font-serif';
       case 'mono': return 'font-mono';
       case 'sans': default: return 'font-sans';
@@ -1116,11 +1172,17 @@ const BannersTab = () => {
                 <select 
                   value={formData.titleFont} 
                   onChange={e => setFormData({...formData, titleFont: e.target.value})} 
-                  className="input-field bg-white text-sm"
+                  className="input-field bg-white text-sm font-medium"
                 >
-                  <option value="sans">Modern Sans</option>
-                  <option value="serif">Classic Serif</option>
-                  <option value="mono">Clean Mono</option>
+                  {BANNER_FONT_OPTIONS.map((grp) => (
+                    <optgroup key={grp.group} label={grp.group}>
+                      {grp.options.map((opt) => (
+                        <option key={opt.value} value={opt.value} style={{ fontFamily: opt.family }}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
             </div>
@@ -1177,11 +1239,17 @@ const BannersTab = () => {
                 <select 
                   value={formData.subtitleFont} 
                   onChange={e => setFormData({...formData, subtitleFont: e.target.value})} 
-                  className="input-field bg-white text-sm"
+                  className="input-field bg-white text-sm font-medium"
                 >
-                  <option value="sans">Modern Sans</option>
-                  <option value="serif">Classic Serif</option>
-                  <option value="mono">Clean Mono</option>
+                  {BANNER_FONT_OPTIONS.map((grp) => (
+                    <optgroup key={grp.group} label={grp.group}>
+                      {grp.options.map((opt) => (
+                        <option key={opt.value} value={opt.value} style={{ fontFamily: opt.family }}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
                 </select>
               </div>
             </div>

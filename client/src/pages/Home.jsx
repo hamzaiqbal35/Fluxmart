@@ -32,10 +32,20 @@ const getSubtitleSizeClass = (size) => {
 
 const getFontClass = (font) => {
   switch (font) {
-    case 'serif':
-      return 'font-serif';
-    case 'mono':
-      return 'font-mono';
+    case 'plus-jakarta': return 'font-plus-jakarta';
+    case 'outfit': return 'font-outfit';
+    case 'playfair': return 'font-playfair';
+    case 'cinzel': return 'font-cinzel';
+    case 'cormorant': return 'font-cormorant italic';
+    case 'bebas': return 'font-bebas uppercase';
+    case 'syne': return 'font-syne';
+    case 'righteous': return 'font-righteous';
+    case 'oswald': return 'font-oswald uppercase';
+    case 'caveat': return 'font-caveat';
+    case 'dancing': return 'font-dancing';
+    case 'space-grotesk': return 'font-space-grotesk';
+    case 'serif': return 'font-serif';
+    case 'mono': return 'font-mono';
     case 'sans':
     default:
       return 'font-sans';

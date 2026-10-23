@@ -120,3 +120,18 @@ div:where(.swal2-container) div:where(.swal2-icon).swal2-success {
   border-color: #22c55e !important;
   color: #22c55e !important;
 }
+
+/* Stylish Fonts for Hero Banners & Highlights */
+.font-inter { font-family: 'Inter', sans-serif; }
+.font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+.font-outfit { font-family: 'Outfit', sans-serif; }
+.font-playfair { font-family: 'Playfair Display', serif; }
+.font-cinzel { font-family: 'Cinzel', serif; letter-spacing: 0.04em; }
+.font-cormorant { font-family: 'Cormorant Garamond', serif; }
+.font-bebas { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
+.font-syne { font-family: 'Syne', sans-serif; }
+.font-righteous { font-family: 'Righteous', cursive; }
+.font-oswald { font-family: 'Oswald', sans-serif; letter-spacing: 0.02em; }
+.font-caveat { font-family: 'Caveat', cursive; }
+.font-dancing { font-family: 'Dancing Script', cursive; }
+.font-space-grotesk { font-family: 'Space Grotesk', sans-serif; }
