@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getMediaUrl } from '../utils/api';
 import ProductCard from '../components/ProductCard';
@@ -9,7 +9,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Initialize banners from local cache to prevent split-second placeholder flash on refresh
+  // Initialize banners from session cache to prevent split-second placeholder flash on refresh
   const [banners, setBanners] = useState(() => {
     try {
       const cached = sessionStorage.getItem('fluxmart_cached_banners');
@@ -47,6 +47,51 @@ const Home = () => {
 
   // If banners exist in cache, render immediately. If still loading without cache, avoid flashing text.
   const activeSlides = banners.length > 0 ? banners : (bannersLoading ? [] : heroSlides);
+
+  const nextSlide = () => {
+    if (activeSlides.length <= 1) return;
+    setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
+  };
+
+  const prevSlide = () => {
+    if (activeSlides.length <= 1) return;
+    setCurrentSlide((prev) => (prev - 1 + activeSlides.length) % activeSlides.length);
+  };
+
+  // Mobile Touch Swipe Handling
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchEndX = useRef(0);
+  const touchEndY = useRef(0);
+  const minSwipeDistance = 40;
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartY.current = e.targetTouches[0].clientY;
+    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndY.current = e.targetTouches[0].clientY;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndY.current = e.targetTouches[0].clientY;
+  };
+
+  const handleTouchEnd = () => {
+    const xDistance = touchStartX.current - touchEndX.current;
+    const yDistance = touchStartY.current - touchEndY.current;
+
+    // Trigger only if horizontal swipe dominates over vertical scroll
+    if (Math.abs(xDistance) > Math.abs(yDistance) && Math.abs(xDistance) > minSwipeDistance) {
+      if (xDistance > 0) {
+        // Swiped left -> next slide
+        nextSlide();
+      } else {
+        // Swiped right -> previous slide
+        prevSlide();
+      }
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -91,8 +136,13 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] md:h-[70vh] md:min-h-[500px] flex items-center justify-center overflow-hidden border-b border-border bg-gray-50">
+      {/* Hero Section with Touch Swipe Support */}
+      <section 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="relative h-[60vh] min-h-[400px] md:h-[70vh] md:min-h-[500px] flex items-center justify-center overflow-hidden border-b border-border bg-gray-50 touch-pan-y select-none"
+      >
         {activeSlides.map((slide, index) => (
           <div
             key={index}
@@ -145,33 +195,40 @@ const Home = () => {
         ))}
         
         {/* Slide Indicators */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-3">
-          {activeSlides.map((_, index) => (
+        {activeSlides.length > 1 && (
+          <div className="absolute bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex space-x-2 md:space-x-3">
+            {activeSlides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-1.5 rounded-full transition-all duration-500 ${
+                  index === currentSlide ? 'w-8 md:w-12 bg-black' : 'w-3 md:w-4 bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Navigation Arrows (accessible on both mobile and desktop) */}
+        {activeSlides.length > 1 && (
+          <>
             <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                index === currentSlide ? 'w-12 bg-black' : 'w-4 bg-gray-300 hover:bg-gray-400'
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-        {/* Navigation Arrows (Hidden on mobile to save space) */}
-        <button
-          onClick={() => setCurrentSlide((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)}
-          className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-white/80 hover:bg-white transition-colors shadow-md items-center justify-center"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft className="w-8 h-8 text-black" />
-        </button>
-        <button
-          onClick={() => setCurrentSlide((prev) => (prev + 1) % activeSlides.length)}
-          className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-white/80 hover:bg-white transition-colors shadow-md items-center justify-center"
-          aria-label="Next slide"
-        >
-          <ChevronRight className="w-8 h-8 text-black" />
-        </button>
+              onClick={prevSlide}
+              className="flex absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-white/70 hover:bg-white text-black transition-all shadow-md items-center justify-center active:scale-95"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-8 md:h-8" />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="flex absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-30 p-2 md:p-3 rounded-full bg-white/70 hover:bg-white text-black transition-all shadow-md items-center justify-center active:scale-95"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="w-5 h-5 md:w-8 md:h-8" />
+            </button>
+          </>
+        )}
       </section>
 
       {/* Featured Products */}
