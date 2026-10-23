@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../utils/api';
+import api, { getMediaUrl } from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const getMediaUrl = (path) => {
-  if (!path) return '';
-  if (path.startsWith('http')) return path;
-  const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000';
-  return `${baseUrl}${path}`;
-};
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [banners, setBanners] = useState([]);
+
+  // Initialize banners from local cache to prevent split-second placeholder flash on refresh
+  const [banners, setBanners] = useState(() => {
+    try {
+      const cached = localStorage.getItem('fluxmart_cached_banners');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [bannersLoading, setBannersLoading] = useState(() => {
+    try {
+      const cached = localStorage.getItem('fluxmart_cached_banners');
+      return !cached || JSON.parse(cached).length === 0;
+    } catch {
+      return true;
+    }
+  });
 
   const heroSlides = [
     {
@@ -34,7 +45,8 @@ const Home = () => {
     }
   ];
 
-  const activeSlides = banners.length > 0 ? banners : heroSlides;
+  // If banners exist in cache, render immediately. If still loading without cache, avoid flashing text.
+  const activeSlides = banners.length > 0 ? banners : (bannersLoading ? [] : heroSlides);
 
   useEffect(() => {
     fetchProducts();
@@ -42,6 +54,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    if (activeSlides.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
     }, 6000);
@@ -51,9 +64,17 @@ const Home = () => {
   const fetchBanners = async () => {
     try {
       const res = await api.get('/banners');
-      setBanners(res.data.banners || []);
+      const fetched = res.data.banners || [];
+      setBanners(fetched);
+      if (fetched.length > 0) {
+        localStorage.setItem('fluxmart_cached_banners', JSON.stringify(fetched));
+      } else {
+        localStorage.removeItem('fluxmart_cached_banners');
+      }
     } catch (error) {
       console.error('Error fetching banners:', error);
+    } finally {
+      setBannersLoading(false);
     }
   };
 

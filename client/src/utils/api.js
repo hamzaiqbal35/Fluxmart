@@ -31,9 +31,11 @@ api.interceptors.response.use(
 
 export const getMediaUrl = (path) => {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
-  const baseUrl = API_URL.replace('/api', '');
-  return `${baseUrl}${path}`;
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  const serverBase = import.meta.env.VITE_SERVER_URL || API_URL.replace('/api', '');
+  const baseUrl = serverBase.replace(/\/+$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${cleanPath}`;
 };
 
 export default api;

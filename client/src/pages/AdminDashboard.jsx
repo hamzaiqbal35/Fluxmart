@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import api from '../utils/api';
+import api, { getMediaUrl } from '../utils/api';
 import ProtectedRoute from '../components/ProtectedRoute';
 import { formatPricePKR } from '../utils/currency';
 import { subDays } from 'date-fns';
@@ -1027,7 +1027,7 @@ const BannersTab = () => {
           banners.map(banner => (
             <div key={banner._id} className="border border-border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow relative group">
               <div className="h-40 bg-gray-100 w-full overflow-hidden relative">
-                <img src={`${import.meta.env.VITE_SERVER_URL}${banner.imageUrl}`} alt={banner.title} className="w-full h-full object-cover" onError={(e) => e.target.src='https://via.placeholder.com/600x400'} />
+                <img src={getMediaUrl(banner.imageUrl)} alt={banner.title} className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://via.placeholder.com/600x400'; }} />
                 {!banner.isActive && <div className="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">Inactive</div>}
               </div>
               <div className="p-4">
