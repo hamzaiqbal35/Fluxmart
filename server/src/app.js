@@ -22,9 +22,26 @@ const { apiLimiter, authLimiter, orderLimiter } = require('./middleware/rateLimi
 
 const app = express();
 
+// Trust reverse proxy (required for Render / Vercel rate-limiting)
+app.set('trust proxy', 1);
+
 // Middleware
+const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const cleanClientUrl = clientUrl.replace(/\/+$/, '');
+const allowedOrigins = [
+  cleanClientUrl,
+  cleanClientUrl + '/',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Blocked by CORS'));
+  },
   credentials: true
 }));
 

@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -10,8 +10,6 @@ const api = axios.create({
   withCredentials: true
 });
 
-// Remove request interceptor as we are using HttpOnly cookies
-
 // Handle response errors
 api.interceptors.response.use(
   (response) => response,
@@ -19,7 +17,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+
+      const isAuthCheck = error.config?.url?.includes('/auth/me');
+      const isAlreadyOnLogin = typeof window !== 'undefined' && window.location.pathname === '/login';
+
+      if (!isAuthCheck && !isAlreadyOnLogin) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
